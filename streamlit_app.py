@@ -1,32 +1,30 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configurazione Pagina
 st.set_page_config(page_title="NEXUS MARTUCCI V6 PRO", page_icon="🛡️")
 st.title("🛡️ NEXUS MARTUCCI V6 PRO")
 
-# Configurazione API con la tua NUOVA chiave
+# La tua nuova chiave
 api_key = "AIzaSyCsMcZkBLIkVLjnXaTvvGokICmvO5K8t1c"
 genai.configure(api_key=api_key)
 
-# Inizializzazione Modello (usiamo Flash che è il più veloce)
+# Forza l'uso del modello stabile senza prefissi complicati
 try:
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # Proviamo a usare il nome semplice senza 'models/'
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 except Exception as e:
-    st.error(f"Errore inizializzazione: {e}")
+    st.error(f"Errore: {e}")
 
-# Interfaccia Utente
-user_input = st.text_area("Cosa desideri analizzare, Roberto?", placeholder="Scrivi qui il tuo messaggio...")
+user_input = st.text_area("Inserisci il testo per l'analisi:")
 
 if st.button("ESEGUI ANALISI"):
     if user_input:
         try:
-            with st.spinner("Il Nexus sta elaborando..."):
-                response = model.generate_content(user_input)
-                st.markdown("### Risposta del Nexus:")
-                st.write(response.text)
+            # Usiamo stream=False per evitare problemi di protocollo
+            response = model.generate_content(user_input, stream=False)
+            st.markdown(response.text)
         except Exception as e:
-            st.error(f"Dettaglio Errore: {e}")
-            st.info("Se l'errore è ancora 404, Google sta attivando i permessi sulla tua nuova chiave. Attendi 5 minuti.")
+            st.error(f"Dettaglio tecnico: {e}")
+            st.info("Se leggi ancora 404, scrivi 'gemini-pro' al posto di 'gemini-1.5-flash-latest' nel codice.")
     else:
-        st.warning("Inserisci un comando per procedere.")
+        st.warning("Scrivi qualcosa!")
