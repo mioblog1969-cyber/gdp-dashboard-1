@@ -1,40 +1,32 @@
 import streamlit as st
 import google.generativeai as genai
 
+# Configurazione Pagina
 st.set_page_config(page_title="NEXUS MARTUCCI V6 PRO", page_icon="🛡️")
 st.title("🛡️ NEXUS MARTUCCI V6 PRO")
 
-# La tua chiave API
-api_key = "AIzaSyCMPB2xUonWMcTACxLjhCH3Ig2_3AY15W8"
+# Configurazione API con la tua NUOVA chiave
+api_key = "AIzaSyCsMcZkBLIkVLjnXaTvvGokICmvO5K8t1c"
 genai.configure(api_key=api_key)
 
-# FUNZIONE DI EMERGENZA: Cerca il primo modello disponibile che supporta il testo
-def get_working_model():
-    try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                return m.name
-    except Exception:
-        return None
-    return None
+# Inizializzazione Modello (usiamo Flash che è il più veloce)
+try:
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error(f"Errore inizializzazione: {e}")
 
-model_name = get_working_model()
-
-if model_name:
-    model = genai.GenerativeModel(model_name)
-    st.success(f"✅ Connessione Stabilita: {model_name}")
-else:
-    st.error("❌ Nessun modello compatibile trovato. Controlla la tua API Key su Google AI Studio.")
-
-user_input = st.text_area("Cosa vuoi analizzare?")
+# Interfaccia Utente
+user_input = st.text_area("Cosa desideri analizzare, Roberto?", placeholder="Scrivi qui il tuo messaggio...")
 
 if st.button("ESEGUI ANALISI"):
-    if user_input and model_name:
+    if user_input:
         try:
-            with st.spinner("Nexus in elaborazione..."):
+            with st.spinner("Il Nexus sta elaborando..."):
                 response = model.generate_content(user_input)
-                st.markdown(response.text)
+                st.markdown("### Risposta del Nexus:")
+                st.write(response.text)
         except Exception as e:
-            st.error(f"Errore tecnico: {e}")
+            st.error(f"Dettaglio Errore: {e}")
+            st.info("Se l'errore è ancora 404, Google sta attivando i permessi sulla tua nuova chiave. Attendi 5 minuti.")
     else:
-        st.warning("Inserisci un testo o verifica la connessione.")
+        st.warning("Inserisci un comando per procedere.")
